@@ -1,0 +1,53 @@
+# secure htaccess file
+RewriteEngine on 
+
+#Options +SymLinksIfOwnerMatch
+#Options + FollowSymLinks
+Options All
+
+
+<Files .htaccess>
+	order allow,deny
+	deny from all 
+</Files>
+  
+ 
+#Website lain kemungkinan ada yang memasang link yang mengarah ke website anda dengan menambahkan query string. Contohnya #www.domain.com/index.php?source=def.com. Query string dapat menciptakan masalah duplikasi konten pada website yang akan merugikan usaha SEO.  
+#RewriteCond %{QUERY_STRING} ^source= RewriteRule (.*) /$1? [R=301,L]
+
+# Hide the application and system directories by redirecting the request to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [QSA,L]
+  
+
+# Memblokir keluar script berusaha base64_encode data dalam URL.
+RewriteCond %{QUERY_STRING} base64_encode[^(]*\([^)]*\) [OR]
+
+# Blok keluar script yang meliputi <script> tag di URL.
+RewriteCond %{QUERY_STRING} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC,OR]
+
+# Memblokir keluar script mencoba untuk menetapkan variabel PHP GLOBALS melalui URL.
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+
+# Memblokir keluar script berusaha untuk memodifikasi variabel _REQUEST melalui URL.
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+
+
+
+ <IfModule mod_rewrite.c>
+  # RewriteEngine on
+  Options All -Indexes
+ </IfModule>
+
+
+
+# menyembunyikan isi direktory
+IndexIgnore *
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php56” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php56 .php .php5 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
